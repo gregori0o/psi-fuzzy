@@ -1,0 +1,258 @@
+FUNCTION_BLOCK
+
+VAR_INPUT
+wilgotnosc_gleby : REAL;
+naslonecznienie : REAL;
+temperatura : REAL;
+wymagania_rosliny : REAL;
+END_VAR
+VAR_OUTPUT
+nawodnienie : REAL;
+END_VAR
+
+FUZZIFY wilgotnosc_gleby
+TERM pustynia := (0, 1) (5, 1) (10, 0.50) (15, 0);
+TERM sucho := (5, 0) (10, 0.50) (15, 1) (20, 1) (30, 0.50) (40, 0);
+TERM wilgotno := (20, 0) (30, 0.50) (40, 1) (50, 1) (60, 0.50) (70, 0);
+TERM mokro := (50, 0) (60, 0.50) (70, 1) (85, 1) (90, 0.50) (95, 0);
+TERM powodz := (85, 0) (90, 0.50) (95, 1) (100, 1);
+END_FUZZIFY
+
+FUZZIFY naslonecznienie
+TERM brak := (0, 1) (10, 1) (20, 0.50) (30, 0);
+TERM male := (10, 0) (20, 0.50) (30, 1) (35, 1) (45, 0.50) (55, 0);
+TERM srednie := (35, 0) (45, 0.50) (55, 1) (60, 1) (70, 0.50) (80, 0);
+TERM duze := (60, 0) (70, 0.50) (80, 1) (100, 1);
+END_FUZZIFY
+
+FUZZIFY temperatura
+TERM zimno := (0, 1) (6, 1) (10, 0.50) (14, 0);
+TERM optymalnie := (6, 0) (10, 0.50) (14, 1) (16, 1) (20, 0.50) (24, 0);
+TERM cieplo := (16, 0) (20, 0.50) (24, 1) (30, 1) (34, 0.50) (38, 0);
+TERM goraco := (30, 0) (34, 0.50) (38, 1) (45, 1);
+END_FUZZIFY
+
+FUZZIFY wymagania_rosliny
+TERM pustynna := (0, 1) (1, 1) (2, 0.50) (3, 0);
+TERM normalna := (1, 0) (2, 0.50) (3, 1) (4, 1) (5, 0.50) (6, 0);
+TERM wilgotna := (4, 0) (5, 0.50) (6, 1) (7, 1) (8, 0.50) (9, 0);
+TERM wodna := (7, 0) (8, 0.50) (9, 1) (10, 1);
+END_FUZZIFY
+
+
+DEFUZZIFY nawodnienie
+TERM brak := (0, 1) (1, 1) (2, 0.50) (3, 0);
+TERM lekkie := (1, 0) (2, 0.50) (3, 1) (4, 1) (5, 0.50) (6, 0);
+TERM normalne := (4, 0) (5, 0.50) (6, 1) (7, 1) (8, 0.50) (9, 0);
+TERM silne := (7, 0) (8, 0.50) (9, 1) (10, 1);
+METHOD : COG;
+DEFAULT := 0;
+END_DEFUZZIFY
+
+
+RULEBLOCK r_pustynna
+AND: MIN;
+ACT: MIN;
+
+RULE 0: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS pustynia AND temperatura IS zimno THEN nawodnienie IS brak;
+
+RULE 1: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS pustynia AND temperatura IS optymalnie AND naslonecznienie IS brak THEN nawodnienie IS brak;
+RULE 2: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS pustynia AND temperatura IS optymalnie AND naslonecznienie IS male THEN nawodnienie IS lekkie;
+RULE 3: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS pustynia AND temperatura IS optymalnie AND naslonecznienie IS srednie THEN nawodnienie IS lekkie;
+RULE 4: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS pustynia AND temperatura IS optymalnie AND naslonecznienie IS duze THEN nawodnienie IS lekkie;
+
+RULE 5: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS pustynia AND temperatura IS cieplo AND naslonecznienie IS brak THEN nawodnienie IS lekkie;
+RULE 6: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS pustynia AND temperatura IS cieplo AND naslonecznienie IS male THEN nawodnienie IS lekkie;
+RULE 7: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS pustynia AND temperatura IS cieplo AND naslonecznienie IS srednie THEN nawodnienie IS normalne;
+RULE 8: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS pustynia AND temperatura IS cieplo AND naslonecznienie IS duze THEN nawodnienie IS normalne;
+
+RULE 9: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS pustynia AND temperatura IS goraco AND naslonecznienie IS brak THEN nawodnienie IS lekkie;
+RULE 10: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS pustynia AND temperatura IS goraco AND naslonecznienie IS male THEN nawodnienie IS normalne;
+RULE 11: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS pustynia AND temperatura IS goraco AND naslonecznienie IS srednie THEN nawodnienie IS normalne;
+RULE 12: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS pustynia AND temperatura IS goraco AND naslonecznienie IS duze THEN nawodnienie IS silne;
+
+
+RULE 13: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS sucho AND temperatura IS zimno THEN nawodnienie IS brak;
+
+RULE 14: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS sucho AND temperatura IS optymalnie THEN nawodnienie IS brak;
+
+RULE 15: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS sucho AND temperatura IS cieplo AND naslonecznienie IS brak THEN nawodnienie IS lekkie;
+RULE 16: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS sucho AND temperatura IS cieplo AND naslonecznienie IS male THEN nawodnienie IS lekkie;
+RULE 17: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS sucho AND temperatura IS cieplo AND naslonecznienie IS srednie THEN nawodnienie IS lekkie;
+RULE 18: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS sucho AND temperatura IS cieplo AND naslonecznienie IS duze THEN nawodnienie IS normalne;
+
+RULE 19: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS sucho AND temperatura IS goraco AND naslonecznienie IS brak THEN nawodnienie IS lekkie;
+RULE 20: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS sucho AND temperatura IS goraco AND naslonecznienie IS male THEN nawodnienie IS normalne;
+RULE 21: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS sucho AND temperatura IS goraco AND naslonecznienie IS srednie THEN nawodnienie IS normalne;
+RULE 22: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS sucho AND temperatura IS goraco AND naslonecznienie IS duze THEN nawodnienie IS normalne;
+
+
+RULE 23: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS wilgotno AND temperatura IS zimno THEN nawodnienie IS brak;
+
+RULE 24: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS wilgotno AND temperatura IS optymalnie THEN nawodnienie IS brak;
+
+RULE 25: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS wilgotno AND temperatura IS cieplo AND naslonecznienie IS brak THEN nawodnienie IS brak;
+RULE 26: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS wilgotno AND temperatura IS cieplo AND naslonecznienie IS male THEN nawodnienie IS brak;
+RULE 27: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS wilgotno AND temperatura IS cieplo AND naslonecznienie IS srednie THEN nawodnienie IS brak;
+RULE 28: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS wilgotno AND temperatura IS cieplo AND naslonecznienie IS duze THEN nawodnienie IS lekkie;
+
+RULE 29: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS wilgotno AND temperatura IS goraco AND naslonecznienie IS brak THEN nawodnienie IS brak;
+RULE 30: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS wilgotno AND temperatura IS goraco AND naslonecznienie IS male THEN nawodnienie IS brak;
+RULE 31: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS wilgotno AND temperatura IS goraco AND naslonecznienie IS srednie THEN nawodnienie IS lekkie;
+RULE 32: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS wilgotno AND temperatura IS goraco AND naslonecznienie IS duze THEN nawodnienie IS lekkie;
+
+
+RULE 33: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS mokro THEN nawodnienie IS brak;
+RULE 34: IF wymagania_rosliny IS pustynna AND wilgotnosc_gleby IS powodz THEN nawodnienie IS brak;
+
+END_RULEBLOCK
+
+
+
+RULEBLOCK r_normalna
+AND: MIN;
+ACT: MIN;
+
+RULE 0: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS pustynia THEN nawodnienie IS silne;
+
+
+RULE 1: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS sucho AND temperatura IS zimno THEN nawodnienie IS lekkie;
+
+RULE 2: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS sucho AND temperatura IS optymalnie AND naslonecznienie IS brak THEN nawodnienie IS lekkie;
+RULE 3: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS sucho AND temperatura IS optymalnie AND naslonecznienie IS male THEN nawodnienie IS lekkie;
+RULE 4: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS sucho AND temperatura IS optymalnie AND naslonecznienie IS srednie THEN nawodnienie IS normalne;
+RULE 5: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS sucho AND temperatura IS optymalnie AND naslonecznienie IS duze THEN nawodnienie IS normalne;
+
+RULE 6: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS sucho AND temperatura IS cieplo AND naslonecznienie IS brak THEN nawodnienie IS normalne;
+RULE 7: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS sucho AND temperatura IS cieplo AND naslonecznienie IS male THEN nawodnienie IS normalne;
+RULE 8: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS sucho AND temperatura IS cieplo AND naslonecznienie IS srednie THEN nawodnienie IS normalne;
+RULE 9: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS sucho AND temperatura IS cieplo AND naslonecznienie IS duze THEN nawodnienie IS silne;
+
+RULE 10: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS sucho AND temperatura IS goraco THEN nawodnienie IS silne;
+
+
+RULE 11: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS wilgotno AND temperatura IS zimno THEN nawodnienie IS brak;
+
+RULE 12: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS wilgotno AND temperatura IS optymalnie AND naslonecznienie IS brak THEN nawodnienie IS brak;
+RULE 13: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS wilgotno AND temperatura IS optymalnie AND naslonecznienie IS male THEN nawodnienie IS brak;
+RULE 14: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS wilgotno AND temperatura IS optymalnie AND naslonecznienie IS srednie THEN nawodnienie IS lekkie;
+RULE 15: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS wilgotno AND temperatura IS optymalnie AND naslonecznienie IS duze THEN nawodnienie IS lekkie;
+
+RULE 16: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS wilgotno AND temperatura IS cieplo AND naslonecznienie IS brak THEN nawodnienie IS lekkie;
+RULE 17: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS wilgotno AND temperatura IS cieplo AND naslonecznienie IS male THEN nawodnienie IS lekkie;
+RULE 18: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS wilgotno AND temperatura IS cieplo AND naslonecznienie IS srednie THEN nawodnienie IS lekkie;
+RULE 19: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS wilgotno AND temperatura IS cieplo AND naslonecznienie IS duze THEN nawodnienie IS normalne;
+
+RULE 20: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS wilgotno AND temperatura IS goraco THEN nawodnienie IS normalne;
+
+
+RULE 21: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS mokro AND temperatura IS zimno THEN nawodnienie IS brak;
+
+RULE 22: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS mokro AND temperatura IS optymalnie THEN nawodnienie IS brak;
+
+RULE 23: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS mokro AND temperatura IS cieplo AND naslonecznienie IS brak THEN nawodnienie IS brak;
+RULE 24: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS mokro AND temperatura IS cieplo AND naslonecznienie IS male THEN nawodnienie IS brak;
+RULE 25: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS mokro AND temperatura IS cieplo AND naslonecznienie IS srednie THEN nawodnienie IS brak;
+RULE 26: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS mokro AND temperatura IS cieplo AND naslonecznienie IS duze THEN nawodnienie IS lekkie;
+
+RULE 27: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS mokro AND temperatura IS goraco AND naslonecznienie IS brak THEN nawodnienie IS brak;
+RULE 28: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS mokro AND temperatura IS goraco AND naslonecznienie IS male THEN nawodnienie IS lekkie;
+RULE 29: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS mokro AND temperatura IS goraco AND naslonecznienie IS srednie THEN nawodnienie IS lekkie;
+RULE 30: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS mokro AND temperatura IS goraco AND naslonecznienie IS duze THEN nawodnienie IS normalne;
+
+
+RULE 31: IF wymagania_rosliny IS normalna AND wilgotnosc_gleby IS powodz THEN nawodnienie IS brak;
+
+END_RULEBLOCK
+
+
+
+RULEBLOCK r_wilgotna
+AND: MIN;
+ACT: MIN;
+
+RULE 0: IF wymagania_rosliny IS wilgotna AND wilgotnosc_gleby IS pustynia THEN nawodnienie IS silne;
+RULE 1: IF wymagania_rosliny IS wilgotna AND wilgotnosc_gleby IS sucho THEN nawodnienie IS silne;
+
+
+RULE 2: IF wymagania_rosliny IS wilgotna AND wilgotnosc_gleby IS wilgotno AND temperatura IS zimno THEN nawodnienie IS lekkie;
+
+RULE 3: IF wymagania_rosliny IS wilgotna AND wilgotnosc_gleby IS wilgotno AND temperatura IS optymalnie AND naslonecznienie IS brak THEN nawodnienie IS lekkie;
+RULE 4: IF wymagania_rosliny IS wilgotna AND wilgotnosc_gleby IS wilgotno AND temperatura IS optymalnie AND naslonecznienie IS male THEN nawodnienie IS lekkie;
+RULE 5: IF wymagania_rosliny IS wilgotna AND wilgotnosc_gleby IS wilgotno AND temperatura IS optymalnie AND naslonecznienie IS srednie THEN nawodnienie IS normalne;
+RULE 6: IF wymagania_rosliny IS wilgotna AND wilgotnosc_gleby IS wilgotno AND temperatura IS optymalnie AND naslonecznienie IS duze THEN nawodnienie IS normalne;
+
+RULE 7: IF wymagania_rosliny IS wilgotna AND wilgotnosc_gleby IS wilgotno AND temperatura IS cieplo AND naslonecznienie IS brak THEN nawodnienie IS lekkie;
+RULE 8: IF wymagania_rosliny IS wilgotna AND wilgotnosc_gleby IS wilgotno AND temperatura IS cieplo AND naslonecznienie IS male THEN nawodnienie IS normalne;
+RULE 9: IF wymagania_rosliny IS wilgotna AND wilgotnosc_gleby IS wilgotno AND temperatura IS cieplo AND naslonecznienie IS srednie THEN nawodnienie IS normalne;
+RULE 10: IF wymagania_rosliny IS wilgotna AND wilgotnosc_gleby IS wilgotno AND temperatura IS cieplo AND naslonecznienie IS duze THEN nawodnienie IS normalne;
+
+RULE 11: IF wymagania_rosliny IS wilgotna AND wilgotnosc_gleby IS wilgotno AND temperatura IS goraco AND naslonecznienie IS brak THEN nawodnienie IS normalne;
+RULE 12: IF wymagania_rosliny IS wilgotna AND wilgotnosc_gleby IS wilgotno AND temperatura IS goraco AND naslonecznienie IS male THEN nawodnienie IS normalne;
+RULE 13: IF wymagania_rosliny IS wilgotna AND wilgotnosc_gleby IS wilgotno AND temperatura IS goraco AND naslonecznienie IS srednie THEN nawodnienie IS normalne;
+RULE 14: IF wymagania_rosliny IS wilgotna AND wilgotnosc_gleby IS wilgotno AND temperatura IS goraco AND naslonecznienie IS duze THEN nawodnienie IS silne;
+
+
+RULE 15: IF wymagania_rosliny IS wilgotna AND wilgotnosc_gleby IS mokro AND temperatura IS zimno THEN nawodnienie IS lekkie;
+
+RULE 16: IF wymagania_rosliny IS wilgotna AND wilgotnosc_gleby IS mokro AND temperatura IS optymalnie THEN nawodnienie IS lekkie;
+
+RULE 17: IF wymagania_rosliny IS wilgotna AND wilgotnosc_gleby IS mokro AND temperatura IS cieplo AND naslonecznienie IS brak THEN nawodnienie IS lekkie;
+RULE 18: IF wymagania_rosliny IS wilgotna AND wilgotnosc_gleby IS mokro AND temperatura IS cieplo AND naslonecznienie IS male THEN nawodnienie IS lekkie;
+RULE 19: IF wymagania_rosliny IS wilgotna AND wilgotnosc_gleby IS mokro AND temperatura IS cieplo AND naslonecznienie IS srednie THEN nawodnienie IS normalne;
+RULE 20: IF wymagania_rosliny IS wilgotna AND wilgotnosc_gleby IS mokro AND temperatura IS cieplo AND naslonecznienie IS duze THEN nawodnienie IS normalne;
+
+RULE 21: IF wymagania_rosliny IS wilgotna AND wilgotnosc_gleby IS mokro AND temperatura IS goraco AND naslonecznienie IS brak THEN nawodnienie IS lekkie;
+RULE 22: IF wymagania_rosliny IS wilgotna AND wilgotnosc_gleby IS mokro AND temperatura IS goraco AND naslonecznienie IS male THEN nawodnienie IS lekkie;
+RULE 23: IF wymagania_rosliny IS wilgotna AND wilgotnosc_gleby IS mokro AND temperatura IS goraco AND naslonecznienie IS srednie THEN nawodnienie IS normalne;
+RULE 24: IF wymagania_rosliny IS wilgotna AND wilgotnosc_gleby IS mokro AND temperatura IS goraco AND naslonecznienie IS duze THEN nawodnienie IS silne;
+
+
+RULE 25: IF wymagania_rosliny IS wilgotna AND wilgotnosc_gleby IS powodz THEN nawodnienie IS brak;
+
+END_RULEBLOCK
+
+
+
+
+RULEBLOCK r_wodna
+AND: MIN;
+ACT: MIN;
+
+RULE 0: IF wymagania_rosliny IS wodna AND wilgotnosc_gleby IS pustynia THEN nawodnienie IS silne;
+RULE 1: IF wymagania_rosliny IS wodna AND wilgotnosc_gleby IS sucho THEN nawodnienie IS silne;
+RULE 2: IF wymagania_rosliny IS wodna AND wilgotnosc_gleby IS wilgotno THEN nawodnienie IS silne;
+
+
+RULE 3: IF wymagania_rosliny IS wodna AND wilgotnosc_gleby IS mokro AND temperatura IS zimno THEN nawodnienie IS lekkie;
+
+RULE 4: IF wymagania_rosliny IS wodna AND wilgotnosc_gleby IS mokro AND temperatura IS optymalnie AND naslonecznienie IS brak THEN nawodnienie IS lekkie;
+RULE 5: IF wymagania_rosliny IS wodna AND wilgotnosc_gleby IS mokro AND temperatura IS optymalnie AND naslonecznienie IS male THEN nawodnienie IS lekkie;
+RULE 6: IF wymagania_rosliny IS wodna AND wilgotnosc_gleby IS mokro AND temperatura IS optymalnie AND naslonecznienie IS srednie THEN nawodnienie IS normalne;
+RULE 7: IF wymagania_rosliny IS wodna AND wilgotnosc_gleby IS mokro AND temperatura IS optymalnie AND naslonecznienie IS duze THEN nawodnienie IS normalne;
+
+RULE 8: IF wymagania_rosliny IS wodna AND wilgotnosc_gleby IS mokro AND temperatura IS cieplo AND naslonecznienie IS brak THEN nawodnienie IS lekkie;
+RULE 9: IF wymagania_rosliny IS wodna AND wilgotnosc_gleby IS mokro AND temperatura IS cieplo AND naslonecznienie IS male THEN nawodnienie IS normalne;
+RULE 10: IF wymagania_rosliny IS wodna AND wilgotnosc_gleby IS mokro AND temperatura IS cieplo AND naslonecznienie IS srednie THEN nawodnienie IS normalne;
+RULE 11: IF wymagania_rosliny IS wodna AND wilgotnosc_gleby IS mokro AND temperatura IS cieplo AND naslonecznienie IS duze THEN nawodnienie IS normalne;
+
+RULE 12: IF wymagania_rosliny IS wodna AND wilgotnosc_gleby IS mokro AND temperatura IS goraco AND naslonecznienie IS brak THEN nawodnienie IS normalne;
+RULE 13: IF wymagania_rosliny IS wodna AND wilgotnosc_gleby IS mokro AND temperatura IS goraco AND naslonecznienie IS male THEN nawodnienie IS normalne;
+RULE 14: IF wymagania_rosliny IS wodna AND wilgotnosc_gleby IS mokro AND temperatura IS goraco AND naslonecznienie IS srednie THEN nawodnienie IS silne;
+RULE 15: IF wymagania_rosliny IS wodna AND wilgotnosc_gleby IS mokro AND temperatura IS goraco AND naslonecznienie IS duze THEN nawodnienie IS silne;
+
+
+RULE 16: IF wymagania_rosliny IS wodna AND wilgotnosc_gleby IS powodz AND temperatura IS zimno THEN nawodnienie IS brak;
+
+RULE 17: IF wymagania_rosliny IS wodna AND wilgotnosc_gleby IS powodz AND temperatura IS optymalnie THEN nawodnienie IS brak;
+
+RULE 18: IF wymagania_rosliny IS wodna AND wilgotnosc_gleby IS powodz AND temperatura IS cieplo AND naslonecznienie IS brak THEN nawodnienie IS brak;
+RULE 19: IF wymagania_rosliny IS wodna AND wilgotnosc_gleby IS powodz AND temperatura IS cieplo AND naslonecznienie IS male THEN nawodnienie IS lekkie;
+RULE 20: IF wymagania_rosliny IS wodna AND wilgotnosc_gleby IS powodz AND temperatura IS cieplo AND naslonecznienie IS srednie THEN nawodnienie IS lekkie;
+RULE 21: IF wymagania_rosliny IS wodna AND wilgotnosc_gleby IS powodz AND temperatura IS cieplo AND naslonecznienie IS duze THEN nawodnienie IS lekkie;
+
+RULE 22: IF wymagania_rosliny IS wodna AND wilgotnosc_gleby IS powodz AND temperatura IS goraco THEN nawodnienie IS lekkie;
+
+END_RULEBLOCK
+
+END_FUNCTION_BLOCK
